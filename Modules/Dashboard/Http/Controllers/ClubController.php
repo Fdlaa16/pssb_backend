@@ -3,12 +3,12 @@
 namespace Modules\Dashboard\Http\Controllers;
 
 use App\Helpers\Helper;
-use App\Models\Player;
+use App\Models\Club;
 use Illuminate\Contracts\Support\Renderable;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 
-class PlayerController extends Controller
+class ClubController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -23,21 +23,11 @@ class PlayerController extends Controller
             $orderByDirection = $request->input('sort') === 'asc' ? 'asc' : 'desc';
         }
 
-        $players = Player::query()
-                    ->with([
-                        'user',
-                        'club'
-                    ])
+        $clubs = Club::query()
                     ->when(!empty($request->search), function ($q) use ($request) {
                         $q->where('created_at', 'like', '%' . $request->search . '%')
-                            ->orWhere('code', 'like', '%' . $request->search . '%')
                             ->orWhere('name', 'like', '%' . $request->search . '%')
-                            ->orWhere('nisn', 'like', '%' . $request->search . '%')
-                            ->orWhere('height', 'like', '%' . $request->search . '%')
-                            ->orWhere('weight', 'like', '%' . $request->search . '%')
-                            ->orWhereHas('user', function ($user) use ($request) {
-                                $user->where('email', 'like', '%' . $request->search . '%');
-                            });
+                            ->orWhere('description', 'like', '%' . $request->search . '%');
                     })
                     ->when($request->status ?? null, function ($query, $status) {
                         if ($status == 0) {
@@ -50,15 +40,15 @@ class PlayerController extends Controller
                     ->latest();
 
         if ($request->has('from_date') && !empty($request->from_date)) {
-            $players->where('created_at', '>=', Helper::formatDate($request->from_date, 'Y-m-d') . ' 00:00:00');
+            $clubs->where('created_at', '>=', Helper::formatDate($request->from_date, 'Y-m-d') . ' 00:00:00');
         }
         if ($request->has('to_date') && !empty($request->to_date)) {
-            $players->where('created_at', '<=', Helper::formatDate($request->to_date, 'Y-m-d') . ' 23:59:59');
+            $clubs->where('created_at', '<=', Helper::formatDate($request->to_date, 'Y-m-d') . ' 23:59:59');
         }
 
-        $players = $players->paginate(10);
+        $clubs = $clubs->paginate(10);
 
-        return $players;
+        return $clubs;
     }
 
     /**

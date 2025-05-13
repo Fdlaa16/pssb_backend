@@ -6,17 +6,15 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Club extends Model
+class Sport extends Model
 {
     use HasFactory, SoftDeletes;
     protected $fillable = [
         'code',
         'name',
-        'status',
-        'description',
     ];
 
-    public static $code_prefix = "CLB";
+    public static $code_prefix = "SPR";
 
     protected static function boot()
     {
@@ -44,28 +42,8 @@ class Club extends Model
         return (string) self::$code_prefix . '-' . str_pad($next_number, 5, 0, STR_PAD_LEFT);
     }
 
-    public function clubPlayer()
+    public function sportPlayer()
     {
-        return $this->belongsTo(ClubPlayer::class, 'club_id', 'id');
-    }
-
-    public function scheduleMatch()
-    {
-        return $this->hasMany(ScheduleMatch::class);
-    }
-
-    public function scheduleTraining()
-    {
-        return $this->hasMany(ScheduleTraining::class);
-    }
-
-    public function stadium()
-    {
-        return $this->hasMany(Stadium::class, 'club_id', 'id');
-    }
-
-    public function standing()
-    {
-        return $this->belongsTo(Standing::class, 'club_id', 'id');
+        return $this->hasMany(SportPlayer::class, 'sport_id', 'id');
     }
 }
